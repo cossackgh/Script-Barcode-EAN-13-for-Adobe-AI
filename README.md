@@ -11,7 +11,7 @@
 <p>Copy files EAN-13.jsx and barcode.png to "Document" folder. And install font "ocrb10.otf". That's all. 
 </p>
 
-<h1>How use script^</h1>
+<h1>How use script</h1>
 <p>
 Open or create new document in Adobe Illustrator. Run "EAN-13.jsx" (File -> Script -> Other scripts... OR press Ctrl+F12). Enter 12 digit your EAN-13 code. Check last control 13 digit and press "Create" button.
 <br>
