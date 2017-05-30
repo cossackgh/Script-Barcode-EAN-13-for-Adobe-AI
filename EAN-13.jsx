@@ -1,11 +1,11 @@
-﻿// Создание штрихкода EAN-13 v 2.0 RC
-// (с) 2010-2011. Ягупов Дмитрий
+﻿// Создание штрихкода EAN-13 v 2.1 
+// (с) 2010-2016. Ягупов Дмитрий
 // www.za-vod.ru
 // info@za-vod.ru
 
 
-// Create Barcode EAN-13 v 2.0
-// (с) 2010-2011. Dmitry Yagupov 
+// Create Barcode EAN-13 v 2.1
+// (с) 2010-2016. Dmitry Yagupov 
 // www.za-vod.ru
 // info@za-vod.ru
 
@@ -175,7 +175,7 @@ var nowEnter="";
 docRef.width=210*mm;
 docRef.height = 297*mm;
 docRef.units = RulerUnits.Millimeters;
-//docRef.RulerUnits = 'Millimeters';
+
 
 
 var hDoc = docRef.height;
@@ -196,135 +196,103 @@ barColor.yellow = 0;
 //*******************************************
 // Create Dialog Window
 
+var win = new Window ("dialog {text:'EAN-13 ver 2.1  ||  (c) 2016 za-vod.ru', preferredSize:[329, 383], \
+  tPanel0:Panel {type:'tabbedpanel', preferredSize:[295, 354], \
+    tTab0:Panel {type:'tab', text:'Default param', \
+      coord:Panel {text:'Barcode placed to:', orientation:'row', alignment:['center', 'top'], \
+        name1:Group { \
+          s1:StaticText {text:'X:'}, \
+          e1:EditText {text:'0', characters:6}, \
+          s2:StaticText {text:'mm   Y:'}, \
+          e2:EditText {text:'0', characters:6}, \
+          s3:StaticText {text:'mm'}}}, \
+      digit12:Panel {text:'EAN-13', \
+        name2:Group {orientation:'row', \
+          s:StaticText {text:' Enter 12 digit code:'}, \
+          e:EditText {text:'', helpTip:'Enter first 12 digit from your EAN code', characters:12}, \
+          sh:StaticText {text:'<?>'}}}, \
+      dopparamonoff:Panel {text:'', visible:false, \
+        progressTxt:StaticText {text:'Progress:'}, \
+        progressSave:Progressbar {value:0, minvalue:0, maxvalue:100}}, \
+      buttons:Group {orientation:'row', alignment:['center', 'center'], \
+        okBtn:Button {text:'OK'}, \
+        cancelBtn:Button {text:'Cancel'}}, \
+      gFrame:Group {orientation:'row', alignment:['center', 'center']}}, \
+    tTab1:Panel {type:'tab', text:'Extendet param', \
+      dopparam:Panel {text:'', orientation:'column', \
+        name3:Group {orientation:'column', \
+          chkLayer:Checkbox {text:'Barcode to new layer \"EAN-13\" ', alignment:['left', ''], value:true}, \
+          chkScale:Checkbox {text:'Barcode Scale to (80-120%) ', alignment:['left', ''], value:false}, \
+          sScale:StaticText {text:'Only 80-120%'}, \
+          eScale:EditText {text:'100', helpTip:'If you want scale barcode, enter scale parameter.', characters:6, enabled:false}}}, \
+      heightBarcode:Group {orientation:'row', \
+        sHeight:StaticText {text:'Height Barcode (min 10 mm): '}, \
+        eHeight:EditText {text:'22.85', helpTip:'Enter height your barcode. By default: 22.85 mm', characters:6}, \
+        sHeightMM:StaticText {text:'mm'}}, \
+      pages:Group {orientation:'row', alignChildren:['center', 'center'], \
+        sPages:StaticText {text:'Pages'}, \
+        ePages:EditText {text:'1', helpTip:'Enter number pages', characters:4}}, \
+      pathAI:Group {orientation:'column', alignChildren:['center', ''], \
+        sPath:StaticText {text:'Change Folder', helpTip:'Path to save your AI files', characters:30}, \
+        PathBtn:Button {text:'Select folder to Save AI'}}, \
+      name4:Group {orientation:'row', alignChildren:['right', ''], \
+        sColumn:StaticText {text:'Columns'}, \
+        eColumn:EditText {text:'1', characters:4}, \
+        sRow:StaticText {text:'Rows'}, \
+        eRow:EditText {text:'1', characters:4}}, \
+      name5:Group {orientation:'row', alignChildren:['right', ''], \
+        sDistanceX:StaticText {text:'Beth Columns'}, \
+        eDistanceX:EditText {text:'1', characters:4}, \
+        sDistanceY:StaticText {text:'Beth Rows'}, \
+        eDistanceY:EditText {text:'1', characters:4}, \
+        sDistanceYmm:StaticText {text:'mm'}}, \
+      buttons:Group {orientation:'row', alignment:['center', ''], \
+        extokBtn:Button {text:'Save Ext Param'}}}}}");
 
 
-
-var res =
-"dialog { alignChildren: 'fill', text: 'EAN-13 ver 2.0 RC', \
-coord: Panel { orientation: 'column', alignChildren:'center', \
-text: 'Coordinate place Barcode', \
-name1: Group { orientation: 'row', \
-s1: StaticText { text:'X:' }, \
-e1: EditText { text: '0',characters: 6 } ,\
-s2: StaticText { text:' mm   Y:' }, \
-e2: EditText { text: '0', characters: 6 }, \
-s3: StaticText { text:' mm' } \
-} \
-}, \
-digit12: Panel { orientation: 'column', \
-text: 'EAN-13', \
-name2: Group { orientation: 'row', \
-s: StaticText { text:' Enter 12 digit code:' }, \
-e: EditText { characters: 12, helpTip:'Enter first 12 digit from your EAN code'  } ,\
-sh: StaticText { text:'<?> ' }, \
-} \
-}, \
-dopparamonoff: Panel { orientation: 'column', \
-text: 'Ext. Parameters', \
-chkExtParam: Checkbox { alignment:'left', text: 'Extend Parameters', value:false}, \
-extparamBtn: Button { text:'Open Extend Parameters',enabled:false}, \
-progressTxt: StaticText { text:'Progress:',visible: false }, \
-progressSave: Progressbar {value: 0,minvalue:0, maxvalue: 100,visible: false}\
-}, \
-buttons: Group { orientation: 'row', alignment: 'center', \
-okBtn: Button { text:'OK', properties:{name:'ok'} }, \
-cancelBtn: Button { text:'Cancel', properties:{name:'cancel'} } \
-} \
-}";
-
-//Extend param dialog windows
-
-var extdialog =
-"dialog { alignChildren: 'fill', text: 'Extendet Parameters', \
-dopparam: Panel { orientation: 'column', \
-text: 'Ext. Parameters', \
-name3: Group { orientation: 'column', \
-chkLayer: Checkbox { alignment:'left', text: 'Barcode to new layer \"EAN-13\" ', value:true}, \
-chkScale: Checkbox { alignment:'left', text: 'Barcode Scale to (80-120%) ', value:false}, \
-sScale: StaticText { text:'Only 80-120%' }, \
-eScale: EditText { characters: 12, enabled:false, text: '100',helpTip:'If you want scale barcode, enter scale parameter.'  } ,\
-} \
-heightBarcode: Group { orientation: 'row', \
-sHeight: StaticText { text:'Height Barcode (min 10 mm): ' }, \
-eHeight: EditText { characters: 6, enabled:true, text: '22.85',helpTip:'Enter height your barcode. By default: 22.85 mm'  } ,\
-sHeightMM: StaticText { text:'  mm ' }, \
-} \
-pages: Group { orientation: 'row', alignChildren:'center',\
-sPages: StaticText { text:'Pages' }, \
-ePages: EditText { characters: 4, enabled:false, text: '1',helpTip:'Enter number pages' } ,\
-} \
-pathAI: Group { orientation: 'column', alignChildren:'center',\
-sPath: StaticText { characters: 30, text:'Change Path' ,helpTip:'Path to save your AI files' }, \
-PathBtn: Button { text:'Select folder to Save AI' }, \
-}\
-name4: Group { orientation: 'row', alignChildren:'right',\
-sColumn: StaticText { text:'Columns' }, \
-eColumn: EditText { characters: 4, enabled:false, text: '1' } ,\
-sRow: StaticText { text:'Rows' }, \
-eRow: EditText { characters: 4, enabled:false, text: '1' } ,\
-} \
-name5: Group { orientation: 'row', alignChildren:'right',\
-sDistanceX: StaticText { text:'Beth Columns' }, \
-eDistanceX: EditText { characters: 5, enabled:false, text: '1' } ,\
-sDistanceY: StaticText { text:'Beth Rows' }, \
-eDistanceY: EditText { characters: 5, enabled:false, text: '1' } ,\
-sDistanceYmm: StaticText { text:'mm' }, \
-} \
-}, \
-buttons: Group { orientation: 'row', alignment: 'center', \
-extokBtn: Button { text:'Save Ext Param', properties:{name:'ok'} }, \
-extcancelBtn: Button { text:'Cancel', properties:{name:'cancel'} } \
-} \
-}";
+var sScale = win.tPanel0.tTab1.dopparam.name3.sScale;
+var gfx = sScale.graphics;
+gfx.foregroundColor = gfx.newPen(gfx.PenType.SOLID_COLOR, [1, 0, 0, 1], 1);
 
 
-//--------------------------------------------------------------------------------------------
-win = new Window (res); 
-//--------------------------------------------------------------------------------------------
-dlgext = new Window (extdialog); 
-
-win.coord.name1.e1.text = newPosX;
-win.coord.name1.e2.text = newPosY;
+win.tPanel0.tTab0.coord.name1.e1.text = newPosX;
+win.tPanel0.tTab0.coord.name1.e2.text = newPosY;
 
 // Colorise 
-var colorEAN = win.digit12.graphics;
-var myBrush = colorEAN.newBrush(colorEAN.BrushType.SOLID_COLOR, [0.92, 0.87, 0.69, 1]);
+var colorEAN = win.tPanel0.tTab0.digit12.graphics;
+var myBrush = colorEAN.newBrush(colorEAN.BrushType.SOLID_COLOR, [0.5, 0.5, 0.5, 1]);
 colorEAN.backgroundColor = myBrush;
+var g = win.tPanel0.tTab1.pathAI.sPath;
+var gGraph = g.graphics;
+gGraph.font = ScriptUI.newFont("Verdana","BOLD",11);
 
-var g = dlgext.dopparam.pathAI.sPath.graphics;
-g.font = ScriptUI.newFont("Verdana","BOLD",11);
-/*
-var colorPath = dlgext.dopparam.pathAI.sPath.graphics;
-var myBrushPath = colorPath.newBrush(colorPath.BrushType.SOLID_COLOR, [0.92, 0.87, 0.69, 1]);
-colorPath.backgroundColor = myBrushPath;
-*/
 
 if (newLayer=='Y'){
-dlgext.dopparam.name3.chkLayer.value= true;
+win.tPanel0.tTab1.dopparam.name3.chkLayer.value= true;
 }
-else dlgext.dopparam.name3.chkLayer.value= false;
+else win.tPanel0.tTab1.dopparam.name3.chkLayer.value= false;
 
 if (newCheckScale=='Y'){
-dlgext.dopparam.name3.chkScale.value= true;
-dlgext.dopparam.name3.eScale.text= newScale;
-dlgext.dopparam.name3.eScale.enabled= true;
+win.tPanel0.tTab1.dopparam.name3.chkScale.value= true;
+win.tPanel0.tTab1.dopparam.name3.eScale.text= newScale;
+win.tPanel0.tTab1.dopparam.name3.eScale.enabled= true;
 }
 else {
-dlgext.dopparam.name3.chkScale.value= false;
-dlgext.dopparam.name3.eScale.text= '100';
-dlgext.dopparam.name3.eScale.enabled= false;
+win.tPanel0.tTab1.dopparam.name3.chkScale.value= false;
+win.tPanel0.tTab1.dopparam.name3.eScale.text= '100';
+win.tPanel0.tTab1.dopparam.name3.eScale.enabled= false;
 }
 
 if (newCheckClone=='Y'){
-	win.dopparamonoff.chkExtParam.value = true;
-    win.dopparamonoff.extparamBtn.enabled = true; 
- //  dlgext.dopparam.name3.chkMatrix.value= true; 
-   dlgext.dopparam.pages.ePages.enabled = true;
-   dlgext.dopparam.name4.eColumn.enabled = true;
-   dlgext.dopparam.name4.eRow.enabled = true;
-   dlgext.dopparam.name5.eDistanceX.enabled = true;
-   dlgext.dopparam.name5.eDistanceY.enabled = true;  
-   dlgext.dopparam.pages.ePages.text = Pages;
+	//win.tPanel0.tTab0.dopparamonoff.chkExtParam.value = true;
+  //win.tPanel0.tTab0.dopparamonoff.extparamBtn.enabled = true; 
+ //  win.tPanel0.tTab1.dopparam.name3.chkMatrix.value= true; 
+   win.tPanel0.tTab1.pages.ePages.enabled = true;
+   win.tPanel0.tTab1.name4.eColumn.enabled = true;
+   win.tPanel0.tTab1.name4.eRow.enabled = true;
+   win.tPanel0.tTab1.name5.eDistanceX.enabled = true;
+   win.tPanel0.tTab1.name5.eDistanceY.enabled = true;  
+   win.tPanel0.tTab1.pages.ePages.text = Pages;
 
    textDlgPathAI = ''+ destFolderEncode; 
 //===========
@@ -341,8 +309,8 @@ if (newCheckClone=='Y'){
 		pathPrefix= pathPrefix.toUpperCase();
 		pathLastFolder = textDlgPathAI.substring(textDlgPathAI.lastIndexOf("/"));
 		textDlgPathAI= 'Path to Save AI -> ' + pathPrefix + '...' + pathLastFolder;
-		dlgext.dopparam.pathAI.sPath.text = textDlgPathAI ;
-        dlgext.dopparam.pathAI.sPath.helpTip = destFolderEncode;
+		win.tPanel0.tTab1.pathAI.sPath.text = textDlgPathAI ;
+        win.tPanel0.tTab1.pathAI.sPath.helpTip = destFolderEncode;
 		}
 	else{
                 if (fos == 'Windows'){
@@ -354,91 +322,121 @@ if (newCheckClone=='Y'){
 		pathLastFolder = textDlgPathAI.substring(15);
                 }
 		textDlgPathAI= 'Path to Save AI -> ' + pathPrefix +  pathLastFolder;		
-		dlgext.dopparam.pathAI.sPath.text = textDlgPathAI ;
-        dlgext.dopparam.pathAI.sPath.helpTip = destFolderEncode;
+		win.tPanel0.tTab1.pathAI.sPath.text = textDlgPathAI ;
+        win.tPanel0.tTab1.pathAI.sPath.helpTip = destFolderEncode;
 			}
 
 //==========
 
 
-    //dlgext.dopparam.pathAI.sPath.text = 'Path to Save AI -> '+ destFolder;   
-   dlgext.dopparam.name4.eColumn.text = newColumn;
-   dlgext.dopparam.name4.eRow.text = newRow;
-   dlgext.dopparam.name5.eDistanceX.text = newColumnDist;
-   dlgext.dopparam.name5.eDistanceY.text = newRowDist;     
+   win.tPanel0.tTab1.name4.eColumn.text = newColumn;
+   win.tPanel0.tTab1.name4.eRow.text = newRow;
+   win.tPanel0.tTab1.name5.eDistanceX.text = newColumnDist;
+   win.tPanel0.tTab1.name5.eDistanceY.text = newRowDist;     
     }
 else{
-   win.dopparamonoff.chkExtParam.value = false;
-   win.dopparamonoff.extparamBtn.enabled = false;
- //  dlgext.dopparam.name3.chkMatrix.value= false; 
-   dlgext.dopparam.pages.ePages.enabled = false;
-   dlgext.dopparam.name4.eColumn.enabled = false;
-   dlgext.dopparam.name4.eRow.enabled = false;
-   dlgext.dopparam.name5.eDistanceX.enabled = false;
-   dlgext.dopparam.name5.eDistanceY.enabled = false;   
-   dlgext.dopparam.pages.ePages.text = '1';   
-   dlgext.dopparam.name4.eColumn.text = '1';
-   dlgext.dopparam.name4.eRow.text = '1';
-   dlgext.dopparam.name5.eDistanceX.text = '1';
-   dlgext.dopparam.name5.eDistanceY.text = '1';      
+
+   win.tPanel0.tTab1.pages.ePages.enabled = false;
+   win.tPanel0.tTab1.name4.eColumn.enabled = false;
+   win.tPanel0.tTab1.name4.eRow.enabled = false;
+   win.tPanel0.tTab1.name5.eDistanceX.enabled = false;
+   win.tPanel0.tTab1.name5.eDistanceY.enabled = false;   
+   win.tPanel0.tTab1.pages.ePages.text = '1';   
+   win.tPanel0.tTab1.name4.eColumn.text = '1';
+   win.tPanel0.tTab1.name4.eRow.text = '1';
+   win.tPanel0.tTab1.name5.eDistanceX.text = '1';
+   win.tPanel0.tTab1.name5.eDistanceY.text = '1';      
     }
 
 
-// Add Picture Barcode to Dialog Window
-try {
-var imgbar = new File(pathJSX+'/barcode.png');
-//Добавляем картинку со штрих-кодом в диалог и если не вышло найти картинку, то пропускаем эту операцию
-win.add("image",[16,16,116,57],imgbar);
-}catch(e) {
-				//alert (e);
-			}
+
+// Draw logo
 
 
-//Check ExtParam Dialog
-win.dopparamonoff.chkExtParam.onClick = function addScale() { 
-        if (win.dopparamonoff.chkExtParam.value == true)    {
-		  win.dopparamonoff.extparamBtn.enabled = true;   			
-		  newCheckClone = 'Y';			 
-           dlgext.dopparam.pages.ePages.enabled = true;            
-           dlgext.dopparam.name4.eColumn.enabled = true;
-           dlgext.dopparam.name4.eRow.enabled = true;
-           dlgext.dopparam.name5.eDistanceX.enabled = true;
-           dlgext.dopparam.name5.eDistanceY.enabled = true;
-            }
-         else {
-           win.dopparamonoff.extparamBtn.enabled = false;   
-		  newCheckClone = 'N';			 
-           dlgext.dopparam.pages.ePages.enabled = false;            
-           dlgext.dopparam.name4.eColumn.enabled = false;
-           dlgext.dopparam.name4.eRow.enabled = false;
-           dlgext.dopparam.name5.eDistanceX.enabled = false;
-           dlgext.dopparam.name5.eDistanceY.enabled = false;             
-             }
-    
-    }
 
-// Open ExtParam Dialog
-win.dopparamonoff.extparamBtn.onClick = function ExtParamDlg(){ 
+var colorFr = win.tPanel0.tTab0.gFrame.graphics;
+var btnFrame = win.tPanel0.tTab0.gFrame;
+btnFrame.size = [130,150];
+btnFrame.margins = [10,50,10,50];
 
-var btnText = {ru:"Да", en: "Yes", de: "Ja", fr: "Oui" };
-//dlgext.center(); 
+var myFrBrush = colorFr.newBrush(colorFr.BrushType.SOLID_COLOR, [0.1, 0.4, 0, 1]);
 
-dlgext.show();
+btnFrame.LineColorContur = btnFrame.graphics.newPen(btnFrame.graphics.PenType.SOLID_COLOR, [1, 0, 0, 1],1 );
+btnFrame.BrushColorRect = btnFrame.graphics.newBrush(btnFrame.graphics.BrushType.SOLID_COLOR, [1, 0, 0, 1]);
 
-}
+btnFrame.LineConturBlack = btnFrame.graphics.currentPath;
+btnFrame.onDraw = customDrawBar;
+
+
+btnFrame.text = "Barcode    EAN-13";  
+btnFrame.textPen = btnFrame.graphics.newPen (btnFrame.graphics.PenType.SOLID_COLOR,[0,0,0,1], 1);
+btnFrame.text2 = "http://za-vod.ru";  
+btnFrame.textPen = btnFrame.graphics.newPen (btnFrame.graphics.PenType.SOLID_COLOR,[0,0,0,1], 1);
+
+colorFr.backgroundColor = myFrBrush;
+
+function customDrawBar(){   
+    with( this ) {  
+graphics.drawOSControl();  
+graphics.rectPath(10,10,2,55);  
+graphics.rectPath(14,10,2,55); 
+graphics.rectPath(18,10,4,50); 
+graphics.rectPath(24,10,2,50); 
+graphics.rectPath(28,10,2,50); 
+graphics.rectPath(36,10,2,50); 
+graphics.rectPath(40,10,2,50); 
+graphics.rectPath(44,10,2,50); 
+graphics.rectPath(50,10,4,50); 
+graphics.rectPath(56,10,2,50); 
+graphics.rectPath(60,10,2,50); 
+graphics.rectPath(66,10,2,55); 
+graphics.rectPath(70,10,2,55); 
+graphics.rectPath(74,10,2,50); 
+graphics.rectPath(78,10,2,50); 
+graphics.rectPath(84,10,2,50); 
+graphics.rectPath(88,10,4,50); 
+graphics.rectPath(94,10,2,50); 
+graphics.rectPath(98,10,2,50); 
+graphics.rectPath(102,10,2,50); 
+graphics.rectPath(108,10,6,50); 
+graphics.rectPath(118,10,2,50); 
+graphics.rectPath(122,10,2,55); 
+graphics.rectPath(126,10,2,55); 
+
+graphics.fillPath(graphics.newBrush(graphics.BrushType.SOLID_COLOR, [0, 0, 0, 1])); 
+graphics.drawString(text,textPen,18,62,graphics.font);
+graphics.drawString(text2,textPen,18,75,graphics.font);
+
+
+}} 
+
+// End Draw logo
+
+
+
+		      
+		      newCheckClone = 'Y';			 
+           win.tPanel0.tTab1.pages.ePages.enabled = true;            
+           win.tPanel0.tTab1.name4.eColumn.enabled = true;
+           win.tPanel0.tTab1.name4.eRow.enabled = true;
+           win.tPanel0.tTab1.name5.eDistanceX.enabled = true;
+           win.tPanel0.tTab1.name5.eDistanceY.enabled = true;
+            
+
+
 
 
 //OnClick Save btn
-dlgext.buttons.extokBtn.onClick = function ExtParamSave(){
+win.tPanel0.tTab1.buttons.extokBtn.onClick = function ExtParamSave(){
     var txtSaveExt = "Ext param: Column - ";
-    txtSaveExt = txtSaveExt+dlgext.dopparam.name4.eColumn.text +" \n Row - ";
-    txtSaveExt = txtSaveExt+dlgext.dopparam.name4.eRow.text;
- dlgext.hide();
-    //dlgext.close(); 
+    txtSaveExt = txtSaveExt+win.tPanel0.tTab1.name4.eColumn.text +" \n Row - ";
+    txtSaveExt = txtSaveExt+win.tPanel0.tTab1.name4.eRow.text;
+    writeINI();
+
     }
 
 // Get Path for saved AI files
-dlgext.dopparam.pathAI.PathBtn.onClick = function(){
+win.tPanel0.tTab1.pathAI.PathBtn.onClick = function(){
 var olddestFolder=destFolder;
 	destFolder = Folder.selectDialog( 'Select folder for Save Barcode files.', destFolder);
     if (!destFolder){
@@ -460,8 +458,8 @@ var olddestFolder=destFolder;
 		pathPrefix= pathPrefix.toUpperCase();
 		pathLastFolder = textDlgPathAI.substring(textDlgPathAI.lastIndexOf("/"));
 		textDlgPathAI= 'Save AI to Folder -> ' + pathPrefix + '...' + pathLastFolder;
-		dlgext.dopparam.pathAI.sPath.text = textDlgPathAI ;
-		dlgext.dopparam.pathAI.sPath.helpTip = destFolderEncode;
+		win.tPanel0.tTab1.pathAI.sPath.text = textDlgPathAI ;
+		win.tPanel0.tTab1.pathAI.sPath.helpTip = destFolderEncode;
 		}
 	else{
                 if (fos == 'Windows'){
@@ -473,29 +471,28 @@ var olddestFolder=destFolder;
 		pathLastFolder = textDlgPathAI.substring(15);
                 }
 		textDlgPathAI= 'Save AI to Folder-> ' + pathPrefix +  pathLastFolder;		
-		dlgext.dopparam.pathAI.sPath.text = textDlgPathAI ;   
-		dlgext.dopparam.pathAI.sPath.helpTip = destFolderEncode;
+		win.tPanel0.tTab1.pathAI.sPath.text = textDlgPathAI ;   
+		win.tPanel0.tTab1.pathAI.sPath.helpTip = destFolderEncode;
 			}
 	}
 
 // Check If enter only digit 0-9
-// Проверяем ввод только цифр 0-9
-win.digit12.name2.e.onChanging = function (){    
+win.tPanel0.tTab0.digit12.name2.e.onChanging = function (){    
 ChangeEANInput();
     }
 
 // If Pages >1 Get Path for saved AI files
-dlgext.dopparam.pages.ePages.onChanging = function(){
-	var chngPages = parseInt(dlgext.dopparam.pages.ePages.text);
+win.tPanel0.tTab1.pages.ePages.onChanging = function(){
+	var chngPages = parseInt(win.tPanel0.tTab1.pages.ePages.text);
 if ( chngPages <1){
 		//destFolder = null;
-		dlgext.dopparam.pages.ePages.text = '1';	
+		win.tPanel0.tTab1.pages.ePages.text = '1';	
 	}
 	}
 
 
 function ChangeEANInput(){
- 	nowEnter = win.digit12.name2.e.text;
+ 	nowEnter = win.tPanel0.tTab0.digit12.name2.e.text;
 	var vPattern = /[^0-9]/;
 	var noneD = /\D/g;
 	var result = vPattern.test(nowEnter);
@@ -503,7 +500,7 @@ function ChangeEANInput(){
 if (result == true)
 {
 	nowEnter = nowEnter.replace(noneD, "") ;
-	win.digit12.name2.e.text = nowEnter;
+	win.tPanel0.tTab0.digit12.name2.e.text = nowEnter;
     alert('Only numbers are permitted for this field.');
 }
 
@@ -511,29 +508,29 @@ if (result == true)
 	if ( nowEnter.length > 12) {
 		alert('You enter more 12 digit');
 		nowEnter = nowEnter.substring(0,12);
-		win.digit12.name2.e.text =  nowEnter;
+		win.tPanel0.tTab0.digit12.name2.e.text =  nowEnter;
 		
 		}
 	
     var chk13 = SUM13(nowEnter);    
 
     EAN = nowEnter+chk13;	
-	win.digit12.name2.sh.text = chk13;   
+	win.tPanel0.tTab0.digit12.name2.sh.text = chk13;   
     
     }
 
 
 // Height  field onChange
-dlgext.dopparam.heightBarcode.eHeight.onChanging = function ChangeHeghtInput(){
- 	blkH = dlgext.dopparam.heightBarcode.eHeight.text;
-	var vPattern = /[^0-9]/;
+win.tPanel0.tTab1.heightBarcode.eHeight.onChange = function ChangeHeghtInput(){
+ 	blkH = win.tPanel0.tTab1.heightBarcode.eHeight.text;
+	var vPattern = /[^0-9.]/;
 	var noneD = /\D/g;
 	var result = vPattern.test(blkH);
 
 if (result == true)
 {
 	blkH = blkH.replace(noneD, "") ;
-	dlgext.dopparam.heightBarcode.eHeight.text = blkH;
+	win.tPanel0.tTab1.heightBarcode.eHeight.text = blkH;
     alert('Only numbers are permitted for this field.');
 }
 
@@ -541,11 +538,11 @@ if (result == true)
 	if ( blkH.length > 4) {
 		alert('You enter more 4 digit');
 		blkH = blkH.substring(0,4);
-		dlgext.dopparam.heightBarcode.eHeight.text =  blkH;
+		win.tPanel0.tTab1.heightBarcode.eHeight.text =  blkH;
 		}
 	if (parseInt(blkH) < 10){
 				alert('You enter less then 10 mm');
-				dlgext.dopparam.heightBarcode.eHeight.text =  '10';
+				win.tPanel0.tTab1.heightBarcode.eHeight.text =  '10';
 				
 		}
 	
@@ -553,45 +550,52 @@ if (result == true)
     }
 
 // OK botton Click
-win.buttons.okBtn.onClick = function actionPlace() { 
-    var enterDigits = win.digit12.name2.e.text.length;
-    var newLayer = dlgext.dopparam.name3.chkLayer.value;
-    var enterScale = parseInt(dlgext.dopparam.name3.eScale.text);
-    var ColMatrix=parseInt(dlgext.dopparam.name4.eColumn.text);
-    var RowMatrix=parseInt(dlgext.dopparam.name4.eRow.text);
-    var DistRow=parseInt(dlgext.dopparam.name5.eDistanceX.text);
-    var DistCol=parseInt(dlgext.dopparam.name5.eDistanceX.text);
-          Pages = parseInt(dlgext.dopparam.pages.ePages.text);
+win.tPanel0.tTab0.buttons.okBtn.onClick = function actionPlace() { 
+    var enterDigits = win.tPanel0.tTab0.digit12.name2.e.text.length;
+    var newLayer = win.tPanel0.tTab1.dopparam.name3.chkLayer.value;
+    var enterScale = parseInt(win.tPanel0.tTab1.dopparam.name3.eScale.text);
+    var ColMatrix=parseInt(win.tPanel0.tTab1.name4.eColumn.text);
+    var RowMatrix=parseInt(win.tPanel0.tTab1.name4.eRow.text);
+    var DistRow=parseInt(win.tPanel0.tTab1.name5.eDistanceX.text);
+    var DistCol=parseInt(win.tPanel0.tTab1.name5.eDistanceX.text);
+          Pages = parseInt(win.tPanel0.tTab1.pages.ePages.text);
+         // alert("START Pages = "+ enterDigits);  
     var First12="";
     var GrHeight=0;
           //stepToNext++;
-    var posXGroup = win.coord.name1.e1.text;
+    var posXGroup = win.tPanel0.tTab0.coord.name1.e1.text;
           XGr = parseInt(posXGroup);    
-    var posYGroup = win.coord.name1.e2.text;    
+    var posYGroup = win.tPanel0.tTab0.coord.name1.e2.text;    
           YGr = parseInt(posYGroup); 
 	var FullPathToSave = null;
 	var fileSaveBCode  = null;
-	blkH= parseInt(dlgext.dopparam.heightBarcode.eHeight.text);
+	blkH= parseFloat(win.tPanel0.tTab1.heightBarcode.eHeight.text);
 	blkHE = blkH +1.65; // Height extendet bar
 
-    if ( dlgext.dopparam.name3.chkLayer.value == true) {
+    if ( win.tPanel0.tTab1.dopparam.name3.chkLayer.value == true) {
                 chkLayer();
-                                                                                }            
+                                                                                }  
+                                                                                        
             
-    if ( enterDigits == 12){   
+    if ( enterDigits == 12) {   
+
+
         if (( enterScale < 80) || (enterScale >120))      // проверяем диапазон масштабирования 80-120%
             alert('Wrong Scale. Enter 80-120% only');        
         else {
-             if ( win.dopparamonoff.chkExtParam.value == true) {// if Extendet Paprameters
-
+           
              if (Pages > 1) {
+
+
                  //RowMatrix = RowMatrix/Pages;
                  // Show ProgressBar
-                 win.dopparamonoff.progressTxt.visible = true;
-                 win.dopparamonoff.progressSave.visible = true;
+                 win.tPanel0.tTab0.dopparamonoff.progressTxt.visible = true;
+                 win.tPanel0.tTab0.dopparamonoff.progressSave.visible = true;                 
                  win.update();
+                 
 				 for (var p =1; p<=Pages; p++){
-                     win.dopparamonoff.progressSave.value = p/Pages*100; // update progressbar
+
+                     win.tPanel0.tTab0.dopparamonoff.progressSave.value = p/Pages*100; // update progressbar
                      win.update();
 			  XGr = parseInt(posXGroup);
 			  YGr = parseInt(posYGroup);
@@ -601,7 +605,7 @@ win.buttons.okBtn.onClick = function actionPlace() {
                 hDoc = docRef.height;
                 wDoc = docRef.width;
                 docRef.rulerOrigin = Array(0, hDoc);   
-        if ( dlgext.dopparam.name3.chkLayer.value == true) {
+        if ( win.tPanel0.tTab1.dopparam.name3.chkLayer.value == true) {
                 chkLayer();
                                                                                 }             
                 
@@ -609,18 +613,19 @@ win.buttons.okBtn.onClick = function actionPlace() {
                  for ( var n=0;n<ColMatrix;n++){
                   First12 =  EAN.substring(0,12);
 
-        win.digit12.name2.e.text  =  parseInt(First12)+stepToNext;
+        win.tPanel0.tTab0.digit12.name2.e.text  =  parseInt(First12)+stepToNext;
 		stepToNext = 1;// Bad solution :(
         ChangeEANInput();
+
         CreatEAN(); // Рисуем штрихкод
         EANGroup.resize(enterScale,enterScale); // Масштабируем
         GrWidth=EANGroup.width/mm;  // Вычисляем ширину группы с одним штрихкодом      
         GrHeight=EANGroup.height/mm;  // Вычисляем высоту группы с одним штрихкодом              
-        XGr=XGr+GrWidth+ parseInt(dlgext.dopparam.name5.eDistanceX.text); // Координата X следующего блока штрихкода
+        XGr=XGr+GrWidth+ parseInt(win.tPanel0.tTab1.name5.eDistanceX.text); // Координата X следующего блока штрихкода
         EANGroup = docRef.groupItems.add(); // добавляем группу
         }
         XGr = parseInt(posXGroup); // Координата X следующего блока штрихкода
-        YGr=YGr+GrHeight+ parseInt(dlgext.dopparam.name5.eDistanceY.text); // Координата Y следующего блока штрихкода
+        YGr=YGr+GrHeight+ parseInt(win.tPanel0.tTab1.name5.eDistanceY.text); // Координата Y следующего блока штрихкода
         }
 
 	FullPathToSave = destFolder+'/'+namePages+EAN+'.ai';	
@@ -636,60 +641,55 @@ win.buttons.okBtn.onClick = function actionPlace() {
                  for ( var n=0;n<ColMatrix;n++){
                   First12 =  EAN.substring(0,12);
 
-        win.digit12.name2.e.text  =  parseInt(First12)+stepToNext;
+        win.tPanel0.tTab0.digit12.name2.e.text  =  parseInt(First12)+stepToNext;
 		stepToNext = 1; // Bad solution :(
         ChangeEANInput();
         CreatEAN(); // Рисуем штрихкод
         EANGroup.resize(enterScale,enterScale); // Масштабируем
         GrWidth=EANGroup.width/mm;  // Вычисляем ширину группы с одним штрихкодом      
         GrHeight=EANGroup.height/mm;  // Вычисляем высоту группы с одним штрихкодом              
-        XGr=XGr+GrWidth+ parseInt(dlgext.dopparam.name5.eDistanceX.text); // Координата X следующего блока штрихкода
+        XGr=XGr+GrWidth+ parseInt(win.tPanel0.tTab1.name5.eDistanceX.text); // Координата X следующего блока штрихкода
         EANGroup = docRef.groupItems.add(); // добавляем группу
         } // End For Column
         XGr = parseInt(posXGroup); // Координата X следующего блока штрихкода
-        YGr=YGr+GrHeight+ parseInt(dlgext.dopparam.name5.eDistanceY.text); // Координата Y следующего блока штрихкода
+        YGr=YGr+GrHeight+ parseInt(win.tPanel0.tTab1.name5.eDistanceY.text); // Координата Y следующего блока штрихкода
         } //End For Row
                 } // End else if Pages =1
             writeINI(); // Записываем INI файл        
             actionCanceled(); // Заканчиваем скрипт
-                                                                                            }
-               else {
-        CreatEAN(); // Рисуем штрихкод
-        EANGroup.resize(enterScale,enterScale); // Масштабируем
-        writeINI(); // Записываем INI файл        
-        actionCanceled(); // Заканчиваем скрипт
-                   }
+
+
                
                 }
         }
     else 
-    alert ('You NO Enter 12 digits');
+    alert ('You do NOT Enter 12 digits');
     
 }
 
 //проверяем масштабирование
-dlgext.dopparam.name3.chkScale.onClick = function addScale() {     
-    if (dlgext.dopparam.name3.chkScale.value == true)    {
-    dlgext.dopparam.name3.eScale.enabled = true;
-    enterScale = parseInt(dlgext.dopparam.name3.eScale.text);
+win.tPanel0.tTab1.dopparam.name3.chkScale.onClick = function addScale() {     
+    if (win.tPanel0.tTab1.dopparam.name3.chkScale.value == true)    {
+    win.tPanel0.tTab1.dopparam.name3.eScale.enabled = true;
+    enterScale = parseInt(win.tPanel0.tTab1.dopparam.name3.eScale.text);
             }
     else {
-    dlgext.dopparam.name3.eScale.enabled = false;    
-    dlgext.dopparam.name3.eScale.text = '100';
+    win.tPanel0.tTab1.dopparam.name3.eScale.enabled = false;    
+    win.tPanel0.tTab1.dopparam.name3.eScale.text = '100';
     enterScale = 100;
     
     }
     }
 
-win.buttons.cancelBtn.onClick = function exitDlg() { 
-	dlgext.close(); 
+win.tPanel0.tTab0.buttons.cancelBtn.onClick = function exitDlg() { 
+
 	win.close();
     }
 
 
 // Проверяем ввод только цифр  и диапазон 80-120%
-dlgext.dopparam.name3.eScale.onChanging = function (){  
-	var nowEnterScale = dlgext.dopparam.name3.eScale.text;
+win.tPanel0.tTab1.dopparam.name3.eScale.onChanging = function (){  
+	var nowEnterScale = win.tPanel0.tTab1.dopparam.name3.eScale.text;
 	var vPattern = /[^0-9]/;
 	var noneD = /\D/g;
 	var result = vPattern.test(nowEnterScale);
@@ -697,7 +697,7 @@ dlgext.dopparam.name3.eScale.onChanging = function (){
 if (result == true)
 {
 	nowEnterScale = nowEnterScale.replace(noneD, "") ;
-	dlgext.dopparam.name3.eScale.text = nowEnterScale;
+	win.tPanel0.tTab1.dopparam.name3.eScale.text = nowEnterScale;
     alert('Only numbers are permitted for this field.');
 }
 
@@ -705,7 +705,7 @@ if (result == true)
 	if ( nowEnterScale.length > 3) {
 		alert('You enter more 3 digit');
 		nowEnterScale = nowEnterScale.substring(0,3);
-		dlgext.dopparam.name3.eScale.text =  nowEnterScale;		
+		win.tPanel0.tTab1.dopparam.name3.eScale.text =  nowEnterScale;		
 		}
 
     }
@@ -715,7 +715,7 @@ win.show();
 
 
  function actionCanceled() { 
-	 dlgext.close(); 
+
 	win.close();
 }
 
@@ -1298,38 +1298,31 @@ function CENTER(){
   rect(zX+blk*3,zY,blk,blkHE,barColor);   
     }
 function writeINI(){
-           myINIFile = new File(pathJSX+'/barcode.ini');
-           myINIFile.open('e'); // 'e' read-write open file.
-myINIFile. writeln(win.coord.name1.e1.text);
-myINIFile. writeln(win.coord.name1.e2.text);
-if (dlgext.dopparam.name3.chkLayer.value == true)
+
+           var openF = myINIFile.open('e'); // 'e' read-write open file.
+          
+myINIFile. writeln(win.tPanel0.tTab0.coord.name1.e1.text);
+myINIFile. writeln(win.tPanel0.tTab0.coord.name1.e2.text);
+if (win.tPanel0.tTab1.dopparam.name3.chkLayer.value == true)
 myINIFile. writeln('Y');
 else
 myINIFile. writeln('N');
-if (dlgext.dopparam.name3.chkScale.value == true){
+if (win.tPanel0.tTab1.dopparam.name3.chkScale.value == true){
 myINIFile. writeln('Y');
-myINIFile. writeln(dlgext.dopparam.name3.eScale.text);
+myINIFile. writeln(win.tPanel0.tTab1.dopparam.name3.eScale.text);
 }
 else{
 myINIFile. writeln('N');
 myINIFile. writeln('100');
 }
-if (win.dopparamonoff.chkExtParam.value == true){
+
 myINIFile. writeln('Y');
-myINIFile. writeln(dlgext.dopparam.pages.ePages.text);
-myINIFile. writeln(dlgext.dopparam.name4.eColumn.text);
-myINIFile. writeln(dlgext.dopparam.name4.eRow.text);
-myINIFile. writeln(dlgext.dopparam.name5.eDistanceX.text);
-myINIFile. writeln(dlgext.dopparam.name5.eDistanceY.text);
-                                                                             }
-else{
-myINIFile. writeln('N');
-myINIFile. writeln(dlgext.dopparam.pages.ePages.text);
-myINIFile. writeln(dlgext.dopparam.name4.eColumn.text);
-myINIFile. writeln(dlgext.dopparam.name4.eRow.text);
-myINIFile. writeln(dlgext.dopparam.name5.eDistanceX.text);
-myINIFile. writeln(dlgext.dopparam.name5.eDistanceY.text);
-}
+myINIFile. writeln(win.tPanel0.tTab1.pages.ePages.text);
+myINIFile. writeln(win.tPanel0.tTab1.name4.eColumn.text);
+myINIFile. writeln(win.tPanel0.tTab1.name4.eRow.text);
+myINIFile. writeln(win.tPanel0.tTab1.name5.eDistanceX.text);
+myINIFile. writeln(win.tPanel0.tTab1.name5.eDistanceY.text);
+                                                                             
 myINIFile. writeln(destFolder);
 myINIFile.close();          
 }
