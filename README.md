@@ -7,7 +7,7 @@
 <p>Copy files EAN-13.jsx and barcode.png to same folder 
 (for example: C:\Program Files\Adobe\Adobe Illustrator CS4\Presets\en_US\Scripts). And install font "ocrb10.otf". That's all. 
 </p>
-<h4>MAC OSX</h4>
+<h4>MAC OSX:</h4>
 <p>Copy files EAN-13.jsx and barcode.png to "Document" folder. And install font "ocrb10.otf". That's all. 
 </p>
 
